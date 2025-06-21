@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <head>
+    <meta charset="UTF-8" />
+    <title>Malaysia Tourist Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        background-color: #f5f7fa;
+      }
+
+      #map {
+        width: 75vw;
+        height: 100vh;
+      }
+
+      .sidebar {
+        width: 25vw;
+        height: 100vh;
+        background: #ffffff;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+        border-left: 1px solid #e0e0e0;
+        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.04);
+      }
+
+      .sidebar h3 {
+        font-size: 1.6rem;
+        margin-bottom: 20px;
+        color: #222;
+      }
+
+      .category-container {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 15px;
+        background: white;
+        border: 2px solid #007BFF;
+        border-radius: 12px;
+        overflow: hidden;
+
+        box-shadow: 0 2px 5px rgba(0, 123, 255, 0.08);
+      }
+
+      .category-option {
+        flex: 1;
+        padding: 10px 5px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.85em;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        color: #007BFF;
+        border-right: 1px solid #e0e0e0;
+      }
+
+      .category-option:last-child {
+        border-right: none;
+      }
+
+      .category-option:hover {
+        background: #007BFF;
+        color: white;
+      }
+
+      .category-option.active {
+        background: #007BFF;
+        color: white;
+      }
+
+      .option-box {
+        padding: 7px 8px;
+        margin: 10px 0;
+        background: #f2f4f6;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 400;
+        color: #333;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+      }
+
+      .option-box:hover {
+        background-color: #e0ecff;
+        border-color: #007bff;
+        color: #007bff;
+      }
+
+      .custom-tooltip {
+        background-color: white;
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      }
+
+      .back-btn {
+        position: absolute;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        padding: 10px 16px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        transition: background 0.3s ease;
+      }
+
+      .dtl-btn {
+        position: absolute;
+        top: 20px;
+        left: 950px;
+        z-index: 1000;
+        padding: 10px 16px;
+        background: #613203;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+        transition: background 0.3s ease;
+      }
+
+
+      .back-btn:hover {
+        background: #0056b3;
+      }
+
+      hr {
+        margin: 24px 0;
+        border: none;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      }
+
+      @media (max-width: 768px) {
+        body {
+          flex-direction: column;
+        }
+
+        #map {
+          width: 100vw;
+          height: 50vh;
+        }
+
+        .sidebar {
+          width: 100vw;
+          height: 50vh;
+          border-left: none;
+          border-top: 1px solid #e0e0e0;
+        }
+
+        .back-btn {
+          top: 10px;
+          left: 10px;
+          padding: 8px 14px;
+        }
+
+        .custom-tooltip {
+          /* Your existing styles */
+          font-family: 'Inter', sans-serif;
+        }
+
+        .custom-tooltip img {
+          margin-bottom: 5px;
+        }
+
+        .custom-tooltip .rating-value {
+          font-weight: bold;
+          color: #333;
+          font-size: 0.9em;
+        }
+      }
+    </style>
+  </head>
+
+<body>
+  <div id="map"></div>
+  <div class="sidebar">
+    <h3>Categories</h3>
+    <div class="category-container">
+      <div class="category-option active" onclick="filterCategory('all')" title="All">★</div>
+      <div class="category-option" onclick="filterCategory('food')" title="Food">Foodies</div>
+      <div class="category-option" onclick="filterCategory('temple')" title="Temple">Temple</div>
+      <div class="category-option" onclick="filterCategory('museum')" title="museum">museum</div>
+      <div class="category-option" onclick="filterCategory('mountain')" title="mountain">mountain</div>
+    </div>
+    <hr>
+    <div id="state-content">
+      <p>Select a state to view places.</p>
+    </div>
+  </div>
+  <button class="back-btn" id="backButton">Back</button>
+  <button class="dtl-btn" id="detailButton" disabled>Details</button>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const originalCenter = [3.014243916068765, 110.58761462674678];
+    const originalZoom = 6;
+    const map = L.map('map', {
+      center: originalCenter,
+      zoom: originalZoom,
+      zoomControl: false,
+      dragging: false,
+      scrollWheelZoom: false,
+      doubleClickZoom: false,
+      boxZoom: false,
+      keyboard: false,
+      tap: false,
+      touchZoom: false
+    });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const stateViews = {
+      "Kuala Lumpur": { center: [3.1390, 101.6869], zoom: 13 },
+      "Selangor": { center: [3.0738, 101.5183], zoom: 9 },
+      "Penang": { center: [5.4164, 100.3327], zoom: 11 },
+      "Johor": { center: [1.4854, 103.7615], zoom: 9 },
+      "Sabah": { center: [5.9788, 116.0753], zoom: 7 },
+      "Sarawak": { center: [1.5533, 110.3592], zoom: 7 },
+      "Perak": { center: [4.5921, 101.0901], zoom: 9 },
+      "Kedah": { center: [6.1184, 100.3685], zoom: 9 },
+      "Kelantan": { center: [6.1254, 102.2381], zoom: 9 },
+      "Melaka": { center: [2.1896, 102.2501], zoom: 10 },
+      "Terengganu": { center: [5.3117, 103.1324], zoom: 9 },
+      "Pahang": { center: [3.8126, 103.3256], zoom: 8 },
+      "Perlis": { center: [6.4446, 100.1986], zoom: 11 },
+      "Negeri Sembilan": { center: [2.7258, 101.9424], zoom: 9 }
+    };
+
+    const categoryColors = {
+      food: 'red',
+      temple: 'orange',
+      museum: 'green',
+      mountain: 'blue'
+    };
+
+    function createCategoryIcon(category) {
+      const color = categoryColors[category] || 'gray';
+      return new L.Icon({
+        iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-${color}.png`,
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+    }
+
+    const placeData = {
+      "Kuala Lumpur":
+        [
+          {
+            name: "Guan Di Temple",
+            lat: 3.1451,
+            lng: 101.6968,
+            zoom: 17,
+            image: "image/guan.png",
+            description: "Dedicated to the Chinese god of war, this Taoist temple is closely tied to Chinese values of loyalty and bravery. Established in 1888, it continues to serve as a community hub for KL’s Chinese devotees and businesspeople seeking divine protection.",
+            category: "temple",
+            rating: 4.4,
+            ratingCount: 1200
+          },
+          {
+            name: "Sin Sze Si Ya Temple",
+            lat: 3.1445,
+            lng: 101.6961,
+            zoom: 17,
+            image: "image/sin.png",
+            description: "Founded by Yap Ah Loy in 1864, this is KL’s oldest Taoist temple. It’s historically significant as it marks the beginnings of Chinese settlement in the city, with traditional feng shui design and local folklore tied to early Chinese pioneers.",
+            category: "temple",
+            rating: 4.5,
+            ratingCount: 1500
+
+          },
+          {
+            name: "Jalan Alor",
+            lat: 3.1466,
+            lng: 101.7083,
+            zoom: 17,
+            image: "image/alor.png",
+            description: "Street food heaven.",
+            category: "food",
+            rating: 4.8,
+            ratingCount: 8500
+          },
+          {
+            name: "Thean Hou Temple",
+            lat: 3.1340,
+            lng: 101.6818,
+            zoom: 16,
+            image: "image/temple.png",
+            description: "Large Chinese temple.",
+            category: "temple",
+            rating: 4.9,
+            ratingCount: 5600
+          },
+          {
+            name: "Islamic Arts Museum Malaysia",
+            lat: 3.1412,
+            lng: 101.6880,
+            zoom: 17,
+            image: "image/muslim.png",
+            description: "World-class museum with Islamic calligraphy, architecture, and manuscripts.",
+            category: "museum",
+            rating: 4.8,
+            ratingCount: 6700
+          },
+          {
+            name: "Royal Museum (Istana Negara Lama)",
+            lat: 3.1352,
+            lng: 101.6917,
+            zoom: 17,
+            image: "image/sultan.png",
+            description: "Former National Palace now open to the public showcasing royal history.",
+            category: "museum",
+            rating: 4.5,
+            ratingCount: 1900
+          },
+        ],
+      "Sabah":
+        [
+          {
+            name: "Kota Kinabalu City Mosque",
+            lat: 5.9804,
+            lng: 116.0735,
+            zoom: 16,
+            image: "image/prayer.png",
+            description: "A stunning floating mosque in Kota Kinabalu.",
+            category: "temple",
+            rating: 4.6,
+            ratingCount: 2200
+          },
+          {
+            name: "Mount Kinabalu",
+            lat: 6.0754,
+            lng: 116.5586,
+            zoom: 14,
+            image: "image/kinabalu.png",
+            description: "Malaysia's tallest mountain and a UNESCO World Heritage site.",
+            category: "mountain",
+            rating: 4.9,
+            ratingCount: 9800
+          },
+        ],
+      "Sarawak":
+        [
+          {
+            name: "Sarawak Cultural Village",
+            lat: 1.5738,
+            lng: 110.3249,
+            zoom: 15,
+            image: "image/village.png",
+            description: "An award-winning living museum showcasing Sarawak's diverse cultures.",
+            category: "museum",
+            rating: 4.7,
+            ratingCount: 4300
+          },
+          {
+            name: "Semenggoh Wildlife Centre",
+            lat: 1.3617,
+            lng: 110.2491,
+            zoom: 14,
+            image: "image/semenggoh.png",
+            description: "Famous for rehabilitating orangutans in natural surroundings.",
+            category: "museum",
+            rating: 4.8,
+            ratingCount: 5100
+          },
+        ],
+      "Johor":
+        [
+          {
+            name: "Sultan Abu Bakar Mosque",
+            lat: 1.4655,
+            lng: 103.7556,
+            zoom: 17,
+            image: "image/sultan_abu_bakar_mosque.png",
+            description: "A state mosque blending British colonial and Moorish architecture, representing Johor's Islamic heritage.",
+            category: "temple",
+            rating: 4.6,
+            ratingCount: 2300
+          },
+          {
+            name: "Johor Bahru Chinese Heritage Museum",
+            lat: 1.4552,
+            lng: 103.7636,
+            zoom: 17,
+            image: "image/johor_chinese_museum.png",
+            description: "Preserves the legacy of Johor's Chinese community through artifacts and historical exhibits.",
+            category: "museum",
+            rating: 4.4,
+            ratingCount: 1100
+          },
+        ],
+      "Kedah":
+        [
+          {
+            name: "Bujang Valley Archaeological Museum",
+            lat: 5.6720,
+            lng: 100.4202,
+            zoom: 17,
+            image: "image/bujang_valley.png",
+            description: "Ancient Hindu-Buddhist ruins and artifacts from a 2,000-year-old Southeast Asian trading kingdom.",
+            category: "museum",
+            rating: 4.5,
+            ratingCount: 1750
+          },
+          {
+            name: "Pekan Rabu",
+            lat: 6.1228,
+            lng: 100.3666,
+            zoom: 17,
+            image: "image/pekan_rabu.png",
+            description: "Traditional Malay market showcasing local crafts, songket, and regional food heritage.",
+            category: "foodie",
+            rating: 4.3,
+            ratingCount: 900
+          },
+        ],
+      "Melaka":
+        [
+          {
+            name: "Stadthuys & Dutch Square",
+            lat: 2.1944,
+            lng: 102.2480,
+            zoom: 17,
+            image: "image/stadthuys_melaka.png",
+            description: "Iconic red Dutch buildings from the 17th century, symbolizing Melaka’s colonial legacy.",
+            category: "museum",
+            rating: 4.7,
+            ratingCount: 3900
+          },
+          {
+            name: "Cheng Hoon Teng Temple",
+            lat: 2.1971,
+            lng: 102.2451,
+            zoom: 17,
+            image: "image/cheng_hoon_teng.png",
+            description: "Oldest functioning Chinese temple in Malaysia, dedicated to Guanyin and rooted in local Chinese heritage.",
+            category: "temple",
+            rating: 4.6,
+            ratingCount: 2200
+          },
+        ],
+      "Penang":
+        [
+          {
+            name: "Khoo Kongsi Clan House",
+            lat: 5.4140,
+            lng: 100.3303,
+            zoom: 17,
+            image: "image/khoo_kongsi.png",
+            description: "An elaborately decorated Chinese clan house representing Penang's Hokkien community history.",
+            category: "temple",
+            rating: 4.7,
+            ratingCount: 3400
+          },
+          {
+            name: "Penang Peranakan Mansion",
+            lat: 5.4171,
+            lng: 100.3400,
+            zoom: 17,
+            image: "image/peranakan_mansion.png",
+            description: "A heritage mansion that showcases the opulence and traditions of the Straits Chinese community.",
+            category: "museum",
+            rating: 4.6,
+            ratingCount: 2900
+          },
+        ],
+      "Pahang":
+        [
+          {
+            name: "Istana Abu Bakar Museum (Pekan Museum)",
+            lat: 3.4970,
+            lng: 103.3900,
+            zoom: 17,
+            image: "image/istana_abu_bakar.png",
+            description: "A royal palace-turned-museum exhibiting Pahang’s regal and cultural past.",
+            category: "museum",
+            rating: 4.3,
+            ratingCount: 850
+          },
+          {
+            name: "Cameron Highlands Time Tunnel",
+            lat: 4.4828,
+            lng: 101.3787,
+            zoom: 17,
+            image: "image/time_tunnel.png",
+            description: "Heritage gallery of Cameron Highlands’ colonial past and local lifestyle artifacts.",
+            category: "museum",
+            rating: 4.5,
+            ratingCount: 1600
+          },
+        ],
+      "Perak":
+        [
+          {
+            name: "Han Chin Pet Soo Museum",
+            lat: 4.5961,
+            lng: 101.0786,
+            zoom: 17,
+            image: "image/han_chin_pet_soo.png",
+            description: "Restored Hakka tin mining clubhouse sharing Ipoh’s mining-era cultural stories.",
+            category: "museum",
+            rating: 4.6,
+            ratingCount: 2100
+          },
+          {
+            name: "Birch Memorial Clock Tower",
+            lat: 4.5971,
+            lng: 101.0770,
+            zoom: 17,
+            image: "image/birch_tower.png",
+            description: "Colonial-era clock tower built in 1909 commemorating Perak’s British administration.",
+            category: "museum",
+            rating: 4.2,
+            ratingCount: 950
+          },
+        ],
+      "Kelantan":
+        [
+          {
+            name: "Handicraft Village and Craft Museum",
+            lat: 6.1368,
+            lng: 102.2392,
+            zoom: 17,
+            image: "image/kelantan_craft_museum.png",
+            description: "Preserves Kelantan’s traditional arts like silverwork, songket weaving, and shadow puppetry.",
+            category: "museum",
+            rating: 4.4,
+            ratingCount: 1000
+          },
+          {
+            name: "Masjid Muhammadi",
+            lat: 6.1293,
+            lng: 102.2405,
+            zoom: 17,
+            image: "image/masjid_muhammadi.png",
+            description: "Historic mosque built in 1867 symbolizing Kelantan’s Islamic scholarly traditions.",
+            category: "temple",
+            rating: 4.5,
+            ratingCount: 1600
+          },
+        ],
+      "Negeri Sembilan":
+        [
+          {
+            name: "Adat Museum",
+            lat: 2.7276,
+            lng: 102.0225,
+            zoom: 17,
+            image: "image/adat_museum.png",
+            description: "Dedicated to Negeri Sembilan’s unique matrilineal culture and Minangkabau architecture.",
+            category: "museum",
+            rating: 4.4,
+            ratingCount: 750
+          },
+          {
+            name: "Seri Menanti Royal Palace",
+            lat: 2.7391,
+            lng: 102.2449,
+            zoom: 17,
+            image: "image/seri_menanti_palace.png",
+            description: "Built without nails, this wooden palace showcases Minangkabau culture and royal heritage.",
+            category: "museum",
+            rating: 4.5,
+            ratingCount: 980
+          },
+        ],
+      "Terengganu":
+        [
+          {
+            name: "Islamic Civilization Park",
+            lat: 5.3330,
+            lng: 103.1078,
+            zoom: 17,
+            image: "image/islamic_park.png",
+            description: "A heritage theme park with replicas of Islamic monuments and local craftsmanship.",
+            category: "museum",
+            rating: 4.3,
+            ratingCount: 2100
+          },
+          {
+            name: "Kampung Cina (Chinatown Kuala Terengganu)",
+            lat: 5.3315,
+            lng: 103.1352,
+            zoom: 17,
+            image: "image/kampung_cina.png",
+            description: "Malaysia’s oldest Chinese settlement, showcasing a fusion of Malay-Chinese cultural heritage.",
+            category: "foodie",
+            rating: 4.4,
+            ratingCount: 1800
+          },
+        ]
+    };
+
+    const placedescription = {
+      "Kuala Lumpur":
+        [
+          {
+            details: "Kuala Lumpur was founded in 1857 and grew rapidly due to the tin mining industry. It became the capital of Malaysia and is now a vibrant metropolis rich in cultural heritage"
+          }
+        ],
+      "Johor":
+        [
+          {
+            details: "Johor's history is deeply intertwined with the rise and fall of the Malacca Sultanate and its subsequent establishment as a powerful independent sultanate. It later became a significant player in the region, particularly under the rule of the Temenggong dynasty, which played a key role in the development of Johor Bahru as a major city and the state's development."
+          }
+        ],
+      "Kedah":
+        [
+          {
+            details: "Kedah, known as Malaysia's 'rice bowl', has a history dating back over 2,000 years. Archaeological findings suggest it was part of the ancient Hindu-Buddhist kingdom of Bujang Valley. Kedah was a vassal state of Siam before becoming a British protectorate in 1909, and it played a strategic role in regional trade routes for centuries."
+          }
+        ],
+      "Kelantan":
+        [
+          {
+            details: "Kelantan has maintained strong Malay traditions and cultural identity throughout its details. The state was influenced by the Srivijaya and Majapahit empires before becoming a center of Islamic learning. Kelantan was historically part of the Pattani Kingdom and resisted Siamese and British influence more than other Malay states."
+          }
+        ],
+      "Melaka":
+        [
+          {
+            details: "Melaka's history as a powerful sultanate began in the early 15th century under Parameswara. It grew into a major trading port and center of Islam in Southeast Asia. After falling to the Portuguese in 1511, it was subsequently ruled by the Dutch and British. Melaka's multicultural heritage earned it UNESCO World Heritage status."
+          }
+        ],
+      "Negeri Sembilan":
+        [
+          {
+            details: "Negeri Sembilan's unique history is characterized by its matrilineal social system inherited from the Minangkabau of Sumatra. Founded in the 15th century by Minangkabau settlers, it maintained special relations with the Minangkabau homeland. The state's name means 'Nine States' referring to the original settlements in the region."
+          }
+        ],
+      "Pahang":
+        [
+          {
+            details: "As Malaysia's largest peninsula state, Pahang has a history dating to the 5th century when it was part of the Langkasuka kingdom. It became a powerful Malay sultanate and played a crucial role in resisting colonial powers. Pahang's gold mines made it economically significant throughout its history."
+          }
+        ],
+      "Perak":
+        [
+          {
+            details: "Perak, meaning 'silver' in Malay, has a history dominated by its rich tin deposits. The state was the site of the Larut Wars (1861-1874) which led to British intervention and the Pangkor Treaty. Perak's royal history is particularly notable, with its sultanate dating back to the 16th century."
+          }
+        ],
+      "Perlis":
+        [
+          {
+            details: "Malaysia's smallest state, Perlis was originally part of Kedah before becoming a separate kingdom under Siamese influence in 1843. It became a British protectorate in 1909 and maintained its distinct identity. Perlis has preserved its traditional Malay culture and agricultural heritage."
+          }
+        ],
+      "Penang":
+        [
+          {
+            details: "Penang's modern history began in 1786 when Francis Light established a British trading post. Known as the 'Pearl of the Orient', it became a melting pot of cultures and a center for trade. George Town's colonial architecture and multicultural heritage earned it UNESCO World Heritage status."
+          }
+        ],
+      "Sabah":
+        [
+          {
+            details: "Formerly known as North Borneo, Sabah has a diverse history involving the Sultanates of Brunei and Sulu. It was administered by the British North Borneo Company before becoming a British colony. Sabah joined Malaysia in 1963, bringing with it rich indigenous cultures and traditions."
+          }
+        ],
+      "Sarawak":
+        [
+          {
+            details: "Sarawak was ruled by the 'White Rajahs' of the Brooke family from 1841 to 1946, creating a unique chapter in colonial history. It became a British colony before joining Malaysia in 1963. Sarawak's history is characterized by its diverse indigenous groups and resistance against colonial rule."
+          }
+        ],
+      "Selangor":
+        [
+          {
+            details: "Selangor's history was shaped by tin mining and the growth of Kuala Lumpur within its borders. The Klang War (1867-1874) between rival Malay factions led to British intervention. Selangor became one of Malaysia's most developed states with a rich industrial heritage."
+          }
+        ],
+      "Terengganu":
+        [
+          {
+            details: "Terengganu has a history dating to the 1st century as part of the Funan Kingdom. The Terengganu Stone, dating to 1303, contains the earliest known Jawi writing. The state maintained independence through strategic relations with regional powers before accepting British advisors in 1919."
+          }
+        ]
+    };
+
+
+
+    let activeMarkers = [];
+    let currentState = null;
+
+    function clearMarkers() {
+      activeMarkers.forEach(marker => map.removeLayer(marker));
+      activeMarkers = [];
+    }
+
+    function filterCategory(category) {
+      // Update active category styling
+      document.querySelectorAll('.category-option').forEach(opt => {
+        opt.classList.remove('active');
+      });
+      event.target.classList.add('active');
+
+      clearMarkers();
+      const contentBox = document.getElementById('state-content');
+
+      if (!currentState) {
+        contentBox.innerHTML = '<p>Please select a state first.</p>';
+        return;
+      }
+
+      const places = placeData[currentState];
+      if (!places) {
+        contentBox.innerHTML = `<h4>${currentState}</h4><p>No places found for this state.</p>`;
+        return;
+      }
+
+      contentBox.innerHTML = `<h4>${category.toUpperCase()}</h4>`;
+
+      places.filter(p => category === 'all' || p.category === category)
+        .forEach((place, i) => {
+          const box = document.createElement('div');
+          box.className = 'option-box';
+          box.textContent = place.name;
+          contentBox.appendChild(box);
+
+          const icon = createCategoryIcon(place.category);
+          const marker = L.marker([place.lat, place.lng], { icon }).addTo(map);
+
+          // Tooltip with rating preview - USING CORRECT PLACE IMAGE
+          const stars = '★'.repeat(Math.round(place.rating)) + '☆'.repeat(5 - Math.round(place.rating));
+          marker.bindTooltip(
+            `<div style="width:150px;">
+          <img src="${place.image}" 
+               onerror="this.src='https://via.placeholder.com/150x100?text=Image+Not+Available'"
+               style="width:100%;height:80px;object-fit:cover;border-radius:6px;"/>
+          <div style="margin-top:5px;font-weight:bold;">${place.name}</div>
+          <div style="color:gold;font-size:0.9em;">
+            ${stars} <span style="color:#333;">${place.rating.toFixed(1)}</span>
+          </div>
+          <div style="font-size:0.8em;color:#666;margin-top:3px;">${place.category}</div>
+        </div>`,
+            {
+              permanent: false,
+              direction: 'top',
+              className: 'custom-tooltip',
+              opacity: 0.9
+            }
+          );
+
+          marker.on('click', () => {
+            map.flyTo([place.lat, place.lng], place.zoom, {
+              animate: true,
+              duration: 2
+            });
+            showPlaceDetail(currentState, i);
+          });
+
+          document.getElementById('backButton').addEventListener('click', () => {
+            map.flyTo(originalCenter, originalZoom, {
+              animate: true,
+              duration: 2
+            });
+            document.getElementById('state-content').innerHTML = '<p>Select a state to view places.</p>';
+            clearMarkers();
+          });
+
+
+          box.addEventListener('click', () => {
+            map.flyTo([place.lat, place.lng], place.zoom, {
+              animate: true,
+              duration: 2
+            });
+            showPlaceDetail(currentState, place.name); // Pass the place name instead of index
+          });
+
+          activeMarkers.push(marker);
+        });
+    }
+
+
+    function getPlaces(tag) {
+      const filteredPlaces = [];
+
+      // Check if currentState is selected
+      if (!currentState) return filteredPlaces;
+
+      // Get places for current state only
+      const statePlaces = placeData[currentState];
+
+      // Filter places by tag
+      statePlaces.forEach((place, index) => {
+        if (place.category === tag) {
+          filteredPlaces.push({
+            index: index,
+            place: place
+          });
+        }
+      });
+
+      return filteredPlaces;
+    }
+    function showPlaceDetail(stateName, placeName) {
+      // Find the place by name
+      const statePlaces = placeData[stateName];
+      const place = statePlaces.find(p => p.name === placeName);
+
+      if (!place) {
+        console.error("Place not found:", placeName);
+        return;
+      }
+
+      const contentBox = document.getElementById('state-content');
+      const stars = '★'.repeat(Math.round(place.rating)) + '☆'.repeat(5 - Math.round(place.rating));
+
+      contentBox.innerHTML = `
+    <a href="#" onclick="filterCategory('all')" style="display:block;margin-bottom:10px;">← Back to Categories</a>
+    <h4>${place.name}</h4>
+    <div style="color:gold;font-size:1.2em;margin:5px 0;">${stars} ${place.rating.toFixed(1)}</div>
+    <img src="${place.image}" alt="${place.name}" 
+         onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Available'"
+         style="width:100%;max-width:300px;height:auto;border:1px solid #ccc;" />
+    <p style="margin-top:10px;">${place.description}</p>
+  `;
+    }
+
+    document.getElementById('backButton').addEventListener('click', () => {
+      map.flyTo(originalCenter, originalZoom, {
+        animate: true,
+        duration: 2
+      });
+      document.getElementById('state-content').innerHTML = '<p>Select a state to view places.</p>';
+      clearMarkers();
+    });
+
+    fetch('my.json')
+      .then(r => r.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: {
+            color: "#333",
+            weight: 1,
+            fillColor: "#66c2a5",
+            fillOpacity: 0.6
+          },
+          onEachFeature: function (feature, layer) {
+            layer.on({
+              mouseover: function (e) {
+                e.target.setStyle({ fillColor: "#fc8d62", fillOpacity: 0.8 });
+              },
+              mouseout: function (e) {
+                e.target.setStyle({ fillColor: "#66c2a5", fillOpacity: 0.6 });
+              },
+              click: function (e) {
+                const stateName = e.target.feature.properties.name;
+                const view = stateViews[stateName];
+                if (view) {
+                  currentState = stateName;
+                  map.flyTo(view.center, view.zoom, {
+                    animate: true,
+                    duration: 2
+                  });
+                  filterCategory('all');
+                  document.getElementById('detailButton').disabled = false; // enable Details button
+                }
+              }
+            });
+          }
+        }).addTo(map);
+      });
+
+    document.getElementById('detailButton').addEventListener('click', () => {
+      const contentBox = document.getElementById('state-content');
+
+      if (!currentState || !placedescription[currentState]) {
+        contentBox.innerHTML = '<p>No historical information available for this state.</p>';
+        return;
+      }
+
+      const stateHistory = placedescription[currentState][0].details;
+
+      contentBox.innerHTML = `
+    <h4>History of ${currentState}</h4>
+    <p>${stateHistory}</p>
+    <a href="#" onclick="filterCategory('all')" style="display:block;margin-top:10px;">← Back to Categories</a>
+  `;
+    });
+  </script>
+</body>
+
+</html>
