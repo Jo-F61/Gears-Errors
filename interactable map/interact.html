@@ -2,202 +2,252 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8" />
+  <title>Malaysia Tourist Map</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-  <head>
-    <meta charset="UTF-8" />
-    <title>Malaysia Tourist Map</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
-    <style>
-      * {
-        box-sizing: border-box;
-      }
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      display: flex;
+      background-color: #f5f7fa;
+    }
 
+    #map {
+      width: 75vw;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 25vw;
+      height: 100vh;
+      background: #ffffff;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      border-left: 1px solid #e0e0e0;
+      box-shadow: -4px 0 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .sidebar h3 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+      color: #222;
+    }
+
+    .category-container {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 15px;
+      background: white;
+      border: 2px solid #007BFF;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 5px rgba(0, 123, 255, 0.08);
+    }
+
+    .category-option {
+      flex: 1;
+      padding: 10px 5px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: #007BFF;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .category-option:last-child {
+      border-right: none;
+    }
+
+    .category-option:hover {
+      background: #007BFF;
+      color: white;
+    }
+
+    .category-option.active {
+      background: #007BFF;
+      color: white;
+    }
+
+    .option-box {
+      padding: 7px 8px;
+      margin: 10px 0;
+      background: #f2f4f6;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 400;
+      color: #333;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .option-box:hover {
+      background-color: #e0ecff;
+      border-color: #007bff;
+      color: #007bff;
+    }
+
+    .history-box {
+      padding: 7px 8px;
+      margin: 10px 0;
+      background: #f9f0ff;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 400;
+      color: #333;
+      transition: all 0.2s ease;
+      border-left: 3px solid #8a2be2;
+    }
+
+    .history-box:hover {
+      background-color: #e8d6ff;
+      color: #5d1d99;
+    }
+
+    .custom-tooltip {
+      background-color: white;
+      padding: 8px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      z-index: 1000;
+      padding: 10px 16px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background 0.3s ease;
+    }
+
+    .dtl-btn {
+      position: absolute;
+      top: 20px;
+      left: 950px;
+      z-index: 1000;
+      padding: 10px 16px;
+      background: #613203;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background 0.3s ease;
+    }
+
+    .hst-btn {
+      position: absolute;
+      top: 80px;
+      left: 950px;
+      z-index: 1000;
+      padding: 10px 16px;
+      background: #c2772c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
+      transition: background 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: #0056b3;
+    }
+
+    .dtl-btn:hover {
+      background: #4f2903;
+    }
+
+    .hst-btn:hover {
+      background: #724519;
+    }
+
+    hr {
+      margin: 24px 0;
+      border: none;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    @media (max-width: 768px) {
       body {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
-        display: flex;
-        background-color: #f5f7fa;
+        flex-direction: column;
       }
 
       #map {
-        width: 75vw;
-        height: 100vh;
+        width: 100vw;
+        height: 50vh;
       }
 
       .sidebar {
-        width: 25vw;
-        height: 100vh;
-        background: #ffffff;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        border-left: 1px solid #e0e0e0;
-        box-shadow: -4px 0 12px rgba(0, 0, 0, 0.04);
-      }
-
-      .sidebar h3 {
-        font-size: 1.6rem;
-        margin-bottom: 20px;
-        color: #222;
-      }
-
-      .category-container {
-        display: flex;
-        gap: 4px;
-        margin-bottom: 15px;
-        background: white;
-        border: 2px solid #007BFF;
-        border-radius: 12px;
-        overflow: hidden;
-
-        box-shadow: 0 2px 5px rgba(0, 123, 255, 0.08);
-      }
-
-      .category-option {
-        flex: 1;
-        padding: 10px 5px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 0.85em;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        color: #007BFF;
-        border-right: 1px solid #e0e0e0;
-      }
-
-      .category-option:last-child {
-        border-right: none;
-      }
-
-      .category-option:hover {
-        background: #007BFF;
-        color: white;
-      }
-
-      .category-option.active {
-        background: #007BFF;
-        color: white;
-      }
-
-      .option-box {
-        padding: 7px 8px;
-        margin: 10px 0;
-        background: #f2f4f6;
-        border-radius: 10px;
-        cursor: pointer;
-        font-weight: 400;
-        color: #333;
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
-      }
-
-      .option-box:hover {
-        background-color: #e0ecff;
-        border-color: #007bff;
-        color: #007bff;
-      }
-
-      .custom-tooltip {
-        background-color: white;
-        padding: 8px;
-        border-radius: 10px;
-        border: 1px solid #ccc;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-      }
-
-      .back-btn {
-        position: absolute;
-        top: 20px;
-        left: 20px;
-        z-index: 1000;
-        padding: 10px 16px;
-        background: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-        transition: background 0.3s ease;
-      }
-
-      .dtl-btn {
-        position: absolute;
-        top: 20px;
-        left: 950px;
-        z-index: 1000;
-        padding: 10px 16px;
-        background: #613203;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.2);
-        transition: background 0.3s ease;
-      }
-
-
-      .back-btn:hover {
-        background: #0056b3;
-      }
-
-      hr {
-        margin: 24px 0;
-        border: none;
+        width: 100vw;
+        height: 50vh;
+        border-left: none;
         border-top: 1px solid #e0e0e0;
       }
 
-      img {
-        max-width: 100%;
-        border-radius: 10px;
-        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+      .back-btn {
+        top: 10px;
+        left: 10px;
+        padding: 8px 14px;
       }
 
-      @media (max-width: 768px) {
-        body {
-          flex-direction: column;
-        }
-
-        #map {
-          width: 100vw;
-          height: 50vh;
-        }
-
-        .sidebar {
-          width: 100vw;
-          height: 50vh;
-          border-left: none;
-          border-top: 1px solid #e0e0e0;
-        }
-
-        .back-btn {
-          top: 10px;
-          left: 10px;
-          padding: 8px 14px;
-        }
-
-        .custom-tooltip {
-          /* Your existing styles */
-          font-family: 'Inter', sans-serif;
-        }
-
-        .custom-tooltip img {
-          margin-bottom: 5px;
-        }
-
-        .custom-tooltip .rating-value {
-          font-weight: bold;
-          color: #333;
-          font-size: 0.9em;
-        }
+      .dtl-btn, .hst-btn {
+        left: auto;
+        right: 10px;
       }
-    </style>
-  </head>
+
+      .dtl-btn {
+        top: 10px;
+      }
+
+      .hst-btn {
+        top: 60px;
+      }
+
+      .custom-tooltip {
+        font-family: 'Inter', sans-serif;
+      }
+
+      .custom-tooltip img {
+        margin-bottom: 5px;
+      }
+
+      .custom-tooltip .rating-value {
+        font-weight: bold;
+        color: #333;
+        font-size: 0.9em;
+      }
+    }
+  </style>
+</head>
 
 <body>
   <div id="map"></div>
@@ -217,6 +267,7 @@
   </div>
   <button class="back-btn" id="backButton">Back</button>
   <button class="dtl-btn" id="detailButton" disabled>Details</button>
+  <button class="hst-btn" id="historyButton" disabled>History</button>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const originalCenter = [3.014243916068765, 110.58761462674678];
@@ -236,6 +287,7 @@
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
+    
 
     const stateViews = {
       "Kuala Lumpur": { center: [3.1390, 101.6869], zoom: 13 },
@@ -261,6 +313,18 @@
       mountain: 'blue'
     };
 
+    // Create a special icon for historical markers
+    function createHistoryIcon() {
+      return new L.Icon({
+        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-violet.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+    }
+
     function createCategoryIcon(category) {
       const color = categoryColors[category] || 'gray';
       return new L.Icon({
@@ -274,7 +338,7 @@
     }
 
     const placeData = {
-      "Kuala Lumpur":
+     "Kuala Lumpur":
         [
           {
             name: "Guan Di Temple",
@@ -620,9 +684,8 @@
           },
         ]
     };
-
     const placedescription = {
-      "Kuala Lumpur":
+         "Kuala Lumpur":
         [
           {
             details: "Kuala Lumpur was founded in 1857 and grew rapidly due to the tin mining industry. It became the capital of Malaysia and is now a vibrant metropolis rich in cultural heritage"
@@ -703,12 +766,53 @@
       "Terengganu":
         [
           {
-            details: "Terengganu has a history dating to the 1st century as part of the Funan Kingdom. The Terengganu Stone, dating to 1303, contains the earliest known Jawi writing. The state maintained independence through strategic relations with regional powers before accepting British advisors in 1919."
+            details: "Terengganu has a history dating to the 1st century as part of the Funan Kingdom. The Terengganu Stone, dating to 1303, contains the earliest known Jawi writing. The state maintained independence through strategic relations with regional powers before accepting British advisors in 1919."
           }
         ]
     };
 
-
+    const placehistory = {
+      "Kuala Lumpur": [
+        {
+          name: "Founding of KL",
+          lat: 3.1390, 
+          lng: 101.6869,
+          zoom: 15,
+          image: "imagehistory/1857.png",
+          description: "Kuala Lumpur was founded in 1857 at the confluence of the Klang and Gombak rivers as a tin mining outpost.",
+          year: "1857"
+        },
+        {
+          name: "Independence Square",
+          lat: 3.1479,
+          lng: 101.6947,
+          zoom: 16,
+          image: "imagehistory/merdeka.png",
+          description: "Site where Malaysia declared independence in 1957. Features colonial buildings and the world's tallest flagpole.",
+          year: "1957"
+        }
+      ],
+      "Penang": [
+        {
+          name: "Francis Light Landing",
+          lat: 5.4164,
+          lng: 100.3327,
+          zoom: 15,
+          image: "imagehistory/landing.png",
+          description: "Captain Francis Light established Penang as a British trading post in 1786, marking the beginning of British influence in Malaya.",
+          year: "1786"
+        },
+        {
+          name: "George Town UNESCO Site",
+          lat: 5.4149,
+          lng: 100.3298,
+          zoom: 16,
+          image: "image/georgetown.jpg",
+          description: "Historic city center with unique blend of Asian and European architecture, designated a UNESCO World Heritage Site in 2008.",
+          year: "2008"
+        }
+      ]
+    };
 
     let activeMarkers = [];
     let currentState = null;
@@ -755,15 +859,15 @@
           const stars = '★'.repeat(Math.round(place.rating)) + '☆'.repeat(5 - Math.round(place.rating));
           marker.bindTooltip(
             `<div style="width:150px;">
-          <img src="${place.image}" 
-               onerror="this.src='https://via.placeholder.com/150x100?text=Image+Not+Available'"
-               style="width:100%;height:80px;object-fit:cover;border-radius:6px;"/>
-          <div style="margin-top:5px;font-weight:bold;">${place.name}</div>
-          <div style="color:gold;font-size:0.9em;">
-            ${stars} <span style="color:#333;">${place.rating.toFixed(1)}</span>
-          </div>
-          <div style="font-size:0.8em;color:#666;margin-top:3px;">${place.category}</div>
-        </div>`,
+              <img src="${place.image}" 
+                   onerror="this.src='https://via.placeholder.com/150x100?text=Image+Not+Available'"
+                   style="width:100%;height:80px;object-fit:cover;border-radius:6px;"/>
+              <div style="margin-top:5px;font-weight:bold;">${place.name}</div>
+              <div style="color:gold;font-size:0.9em;">
+                ${stars} <span style="color:#333;">${place.rating.toFixed(1)}</span>
+              </div>
+              <div style="font-size:0.8em;color:#666;margin-top:3px;">${place.category}</div>
+            </div>`,
             {
               permanent: false,
               direction: 'top',
@@ -780,50 +884,18 @@
             showPlaceDetail(currentState, i);
           });
 
-          document.getElementById('backButton').addEventListener('click', () => {
-            map.flyTo(originalCenter, originalZoom, {
-              animate: true,
-              duration: 2
-            });
-            document.getElementById('state-content').innerHTML = '<p>Select a state to view places.</p>';
-            clearMarkers();
-          });
-
-
           box.addEventListener('click', () => {
             map.flyTo([place.lat, place.lng], place.zoom, {
               animate: true,
               duration: 2
             });
-            showPlaceDetail(currentState, place.name); // Pass the place name instead of index
+            showPlaceDetail(currentState, place.name);
           });
 
           activeMarkers.push(marker);
         });
     }
 
-
-    function getPlaces(tag) {
-      const filteredPlaces = [];
-
-      // Check if currentState is selected
-      if (!currentState) return filteredPlaces;
-
-      // Get places for current state only
-      const statePlaces = placeData[currentState];
-
-      // Filter places by tag
-      statePlaces.forEach((place, index) => {
-        if (place.category === tag) {
-          filteredPlaces.push({
-            index: index,
-            place: place
-          });
-        }
-      });
-
-      return filteredPlaces;
-    }
     function showPlaceDetail(stateName, placeName) {
       // Find the place by name
       const statePlaces = placeData[stateName];
@@ -838,14 +910,14 @@
       const stars = '★'.repeat(Math.round(place.rating)) + '☆'.repeat(5 - Math.round(place.rating));
 
       contentBox.innerHTML = `
-    <a href="#" onclick="filterCategory('all')" style="display:block;margin-bottom:10px;">← Back to Categories</a>
-    <h4>${place.name}</h4>
-    <div style="color:gold;font-size:1.2em;margin:5px 0;">${stars} ${place.rating.toFixed(1)}</div>
-    <img src="${place.image}" alt="${place.name}" 
-         onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Available'"
-         style="width:100%;max-width:300px;height:auto;border:1px solid #ccc;" />
-    <p style="margin-top:10px;">${place.description}</p>
-  `;
+        <a href="#" onclick="filterCategory('all')" style="display:block;margin-bottom:10px;">← Back to Categories</a>
+        <h4>${place.name}</h4>
+        <div style="color:gold;font-size:1.2em;margin:5px 0;">${stars} ${place.rating.toFixed(1)}</div>
+        <img src="${place.image}" alt="${place.name}" 
+             onerror="this.src='https://via.placeholder.com/300x200?text=Image+Not+Available'"
+             style="width:100%;max-width:300px;height:auto;border:1px solid #ccc;" />
+        <p style="margin-top:10px;">${place.description}</p>
+      `;
     }
 
     document.getElementById('backButton').addEventListener('click', () => {
@@ -855,6 +927,81 @@
       });
       document.getElementById('state-content').innerHTML = '<p>Select a state to view places.</p>';
       clearMarkers();
+      currentState = null;
+      document.getElementById('detailButton').disabled = true;
+      document.getElementById('historyButton').disabled = true;
+    });
+
+    // History button functionality
+    document.getElementById('historyButton').addEventListener('click', () => {
+      const contentBox = document.getElementById('state-content');
+      
+      if (!currentState) {
+        contentBox.innerHTML = '<p>Please select a state first.</p>';
+        return;
+      }
+
+      // Clear existing markers
+      clearMarkers();
+      
+      const historyEntries = placehistory[currentState];
+      
+      if (!historyEntries || historyEntries.length === 0) {
+        contentBox.innerHTML = `<h4>${currentState} History</h4><p>No historical markers available for this state.</p>`;
+        return;
+      }
+
+      contentBox.innerHTML = `<h4>Historical Sites in ${currentState}</h4>`;
+      
+      // Add historical markers to map
+      historyEntries.forEach((history, i) => {
+        const box = document.createElement('div');
+        box.className = 'history-box';
+        box.innerHTML = `<strong>${history.year}:</strong> ${history.name}`;
+        contentBox.appendChild(box);
+        
+        const marker = L.marker([history.lat, history.lng], {
+          icon: createHistoryIcon()
+        }).addTo(map);
+        
+        marker.bindPopup(`
+          <div style="width:200px">
+            <h4>${history.name}</h4>
+            <img src="${history.image}" style="width:100%;height:100px;object-fit:cover;border-radius:5px;"
+                 onerror="this.src='https://via.placeholder.com/200x100?text=History+Image'">
+            <p>${history.description}</p>
+            <small>Year: ${history.year}</small>
+          </div>
+        `);
+        
+        box.addEventListener('click', () => {
+          map.flyTo([history.lat, history.lng], history.zoom || 15, {
+            animate: true,
+            duration: 1.5
+          });
+          marker.openPopup();
+        });
+        
+        activeMarkers.push(marker);
+      });
+    });
+
+    // Details button functionality
+    document.getElementById('detailButton').addEventListener('click', () => {
+      const contentBox = document.getElementById('state-content');
+
+      if (!currentState || !placedescription[currentState]) {
+        contentBox.innerHTML = '<p>No historical information available for this state.</p>';
+        return;
+      }
+
+      const stateHistory = placedescription[currentState][0].details;
+
+      contentBox.innerHTML = `
+        <h4>Brief explanation of ${currentState}</h4>
+        <p>${stateHistory}</p>
+        <a href="#" onclick="filterCategory('all')" style="display:block;margin-top:10px;">← Back to Categories</a>
+      `;
     });
 
     fetch('my.json')
@@ -885,31 +1032,33 @@
                     duration: 2
                   });
                   filterCategory('all');
-                  document.getElementById('detailButton').disabled = false; // enable Details button
+                  document.getElementById('detailButton').disabled = false;
+                  document.getElementById('historyButton').disabled = false;
                 }
               }
             });
           }
         }).addTo(map);
+      })
+      .catch(error => {
+        console.error('Error loading state boundaries:', error);
+        // Fallback if my.json fails to load
+        Object.entries(stateViews).forEach(([stateName, view]) => {
+          const marker = L.marker(view.center).addTo(map);
+          marker.bindTooltip(stateName);
+          marker.on('click', () => {
+            currentState = stateName;
+            map.flyTo(view.center, view.zoom, {
+              animate: true,
+              duration: 2
+            });
+            filterCategory('all');
+            document.getElementById('detailButton').disabled = false;
+            document.getElementById('historyButton').disabled = false;
+          });
+          activeMarkers.push(marker);
+        });
       });
-
-    document.getElementById('detailButton').addEventListener('click', () => {
-      const contentBox = document.getElementById('state-content');
-
-      if (!currentState || !placedescription[currentState]) {
-        contentBox.innerHTML = '<p>No historical information available for this state.</p>';
-        return;
-      }
-
-      const stateHistory = placedescription[currentState][0].details;
-
-      contentBox.innerHTML = `
-    <h4>History of ${currentState}</h4>
-    <p>${stateHistory}</p>
-    <a href="#" onclick="filterCategory('all')" style="display:block;margin-top:10px;">← Back to Categories</a>
-  `;
-    });
   </script>
 </body>
-
 </html>
