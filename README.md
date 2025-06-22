@@ -39,7 +39,21 @@ Usage:
 ![Screenshot 2025-06-22 082302](https://github.com/user-attachments/assets/01c995ba-4bcc-4d53-9fe4-97aefae56697)
 
 2. Click details, to check the brief information about the selected state
-4. OR, select one of the item at the categorize list based on your interest to see the information about the selected location
+![image](https://github.com/user-attachments/assets/f59e6db3-7319-4d80-9d13-b4bb1df9abd6)
+
+If you click details:
+![image](https://github.com/user-attachments/assets/f3679357-94b1-4d69-ba42-ae8fb398f810)
+
+![image](https://github.com/user-attachments/assets/0c1cbd90-a982-4fc3-902b-f8881c72e37b)
+
+If you click history:
+![image](https://github.com/user-attachments/assets/3011cb26-72dc-40b4-bfd7-5f978d0b8023)
+
+![image](https://github.com/user-attachments/assets/9c089b3f-22e8-469e-b2a9-32f003a08403)
+
+
+3. OR, select one of the item at the categorize list based on your interest to see the information about the selected location
+![image](https://github.com/user-attachments/assets/2a38492d-6537-4df1-8b9d-70213af4c4bf)
 
 To use it you simply choose which state are you going, as an example you going to KL. You choose KL as the state you choice and there will be an option such as food, park, shopping, and temple area that you can visit.  You simply click the categories and you will see multiple option from the marker. You can hover around to see the location visually and you can click to see more about the description. 
 
