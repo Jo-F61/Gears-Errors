@@ -36,8 +36,10 @@ In here we use interactive map to convey to tourist to be able easily access the
 
 Usage:
 1. Select a state of Malaysia, then click it
+![Screenshot 2025-06-22 082302](https://github.com/user-attachments/assets/01c995ba-4bcc-4d53-9fe4-97aefae56697)
+
 2. Click details, to check the brief information about the selected state
-3. OR, select one of the item at the categorize list based on your interest to see the information about the selected location
+4. OR, select one of the item at the categorize list based on your interest to see the information about the selected location
 
 To use it you simply choose which state are you going, as an example you going to KL. You choose KL as the state you choice and there will be an option such as food, park, shopping, and temple area that you can visit.  You simply click the categories and you will see multiple option from the marker. You can hover around to see the location visually and you can click to see more about the description. 
 
